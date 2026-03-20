@@ -5,15 +5,6 @@
 -- Reserve a space in the gutter
 vim.opt.signcolumn = 'yes'
 
--- Add cmp_nvim_lsp capabilities settings to lspconfig
--- This should be executed before you configure any language server
-local lspconfig_defaults = require('lspconfig').util.default_config
-lspconfig_defaults.capabilities = vim.tbl_deep_extend(
-  'force',
-  lspconfig_defaults.capabilities,
-  require('cmp_nvim_lsp').default_capabilities()
-)
-
 -- This is where you enable features that only work
 -- if there is a language server active in the file
 vim.api.nvim_create_autocmd('LspAttach', {
@@ -31,14 +22,24 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
     vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
     vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+    vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
   end,
 })
 
--- You'll find a list of language servers here:
--- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
--- These are example language servers. 
-require('lspconfig').basedpyright.setup({})
-require('lspconfig').clangd.setup({})
+-- Configure capabilities for nvim-cmp integration
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+-- Configure language servers with custom settings
+vim.lsp.config('basedpyright', {
+  capabilities = capabilities,
+})
+
+vim.lsp.config('clangd', {
+  capabilities = capabilities,
+})
+
+-- Enable the language servers
+vim.lsp.enable({'basedpyright', 'clangd'})
 
 local cmp = require('cmp')
 
@@ -54,3 +55,4 @@ cmp.setup({
   },
   mapping = cmp.mapping.preset.insert({}),
 })
+
